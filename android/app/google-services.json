@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "20293794965",
+    "project_id": "e-surprise",
+    "storage_bucket": "e-surprise.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20293794965:android:16a81dd360639920066f9c",
+        "android_client_info": {
+          "package_name": "com.example.e_surprise"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "20293794965-mpp9pp0fi6omc3ifps1nfng5dnpabi9f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.e_surprise",
+            "certificate_hash": "ab6ae9788900ce6dd3f176853e0f9ca7c5ee2c26"
+          }
+        },
+        {
+          "client_id": "20293794965-ujhe48cja4chhuq279f3m490as757drj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9lIvzd44gy1PKLFiNIU_k_ima9xCS7uE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "20293794965-ujhe48cja4chhuq279f3m490as757drj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
