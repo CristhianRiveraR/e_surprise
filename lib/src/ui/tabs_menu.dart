@@ -1,7 +1,13 @@
 import 'package:e_surprise/src/ui/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+
+import 'listado_prod_vendedor.dart';
+
+String? email = "";
+String? rol = "vendedor";
 
 class TabsPage extends StatefulWidget {
   TabsPage({Key? key, this.user}) : super(key: key);
@@ -12,16 +18,32 @@ class TabsPage extends StatefulWidget {
 
 class _TabsPageState extends State<TabsPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final fb = FirebaseDatabase.instance;
+  //final db = FirebaseDatabase.instance;
   //final _users_Ref = fb.reference().child("usuarios/${userID}");
 
   User? user;
+
   Future<void> getUserData() async {
     User? userData = await FirebaseAuth.instance.currentUser;
 
     setState(() {
       user = userData;
-      print(userData!.email);
+      email = userData!.email;
+    });
+
+    final query = FirebaseDatabase.instance
+        .reference()
+        .child("usuarios")
+        .orderByChild('email')
+        .equalTo(email)
+        .limitToFirst(1)
+        .once()
+        .then((DataSnapshot snapshot) {
+      Map<dynamic, dynamic> values = snapshot.value;
+      values.forEach((key, values) {
+        print(values["rol"]);
+        rol = values["rol"];
+      });
     });
   }
 
@@ -35,7 +57,7 @@ class _TabsPageState extends State<TabsPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 1,
       child: Scaffold(
         appBar: AppBar(
           title: Center(
@@ -45,17 +67,13 @@ class _TabsPageState extends State<TabsPage> {
             tabs: [
               Tab(
                 icon: Icon(Icons.list),
-                text: 'Listado de productos',
+                text: rol,
               ),
-              Tab(
-                icon: Icon(Icons.add),
-                text: 'Agregar Productos',
-              )
             ],
           ),
         ),
         body: TabBarView(
-          children: <Widget>[LoginView(), LoginView()],
+          children: <Widget>[ListadoProdVendedorView()],
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.logout),
