@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import 'package:e_surprise/src/ui/tabs_menu.dart';
@@ -9,6 +10,10 @@ class RegistroView extends StatefulWidget {
   @override
   _RegistroViewState createState() => _RegistroViewState();
 }
+
+final usuarioRef = FirebaseDatabase.instance.reference().child('usuarios');
+enum SingingCharacter { cliente, vendedor }
+SingingCharacter? _character = SingingCharacter.cliente;
 
 class _RegistroViewState extends State<RegistroView> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
@@ -94,6 +99,30 @@ class _RegistroViewState extends State<RegistroView> {
                 SizedBox(
                   height: 15.0,
                 ),
+                ListTile(
+                  title: const Text('Cliente'),
+                  leading: Radio<SingingCharacter>(
+                    value: SingingCharacter.cliente,
+                    groupValue: _character,
+                    onChanged: (SingingCharacter? value) {
+                      setState(() {
+                        _character = value;
+                      });
+                    },
+                  ),
+                ),
+                ListTile(
+                  title: const Text('Vendedor'),
+                  leading: Radio<SingingCharacter>(
+                    value: SingingCharacter.vendedor,
+                    groupValue: _character,
+                    onChanged: (SingingCharacter? value) {
+                      setState(() {
+                        _character = value;
+                      });
+                    },
+                  ),
+                ),
                 registroButton,
               ],
             ),
@@ -114,6 +143,17 @@ class _RegistroViewState extends State<RegistroView> {
 
   registro() async {
     try {
+      String rol = "";
+      if (_character == SingingCharacter.cliente) {
+        rol = "cliente";
+      } else {
+        rol = "vendedor";
+      }
+      usuarioRef.push().set({
+        'email': emailController!.text,
+        'rol': rol,
+      }).then((value) {});
+
       await _auth.createUserWithEmailAndPassword(
           email: emailController!.text, password: passWordController!.text);
     } catch (e) {
