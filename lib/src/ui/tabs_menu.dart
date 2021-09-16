@@ -1,4 +1,5 @@
 import 'package:e_surprise/src/ui/login.dart';
+import 'package:e_surprise/src/ui/set_producto_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -41,7 +42,7 @@ class _TabsPageState extends State<TabsPage> {
         .then((DataSnapshot snapshot) {
       Map<dynamic, dynamic> values = snapshot.value;
       values.forEach((key, values) {
-        print(values["rol"]);
+        //print(values["rol"]);
         rol = values["rol"];
       });
     });
@@ -56,24 +57,63 @@ class _TabsPageState extends State<TabsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tabBar;
+    int tabLength = 0;
+    if (rol == 'vendedor') {
+      tabLength = 5;
+
+      tabBar = TabBar(
+        tabs: [
+          Tab(
+            icon: Icon(Icons.home),
+            text: 'Home',
+          ),
+          Tab(
+            icon: Icon(Icons.list),
+            text: 'Productos',
+          ),
+          Tab(
+            icon: Icon(Icons.add),
+            text: 'Agregar',
+          ),
+          Tab(
+            icon: Icon(Icons.check),
+            text: 'Activos',
+          ),
+          Tab(
+            icon: Icon(Icons.cancel_outlined),
+            text: 'Inactivos',
+          ),
+        ],
+      );
+    } else {
+      tabBar = TabBar(
+        tabs: [
+          Tab(
+            icon: Icon(Icons.list),
+            text: 'rol',
+          ),
+        ],
+      );
+    }
     return DefaultTabController(
-      length: 1,
+      length: tabLength,
       child: Scaffold(
         appBar: AppBar(
           title: Center(
             child: Text('Bienvenid@: ${user!.email}'),
           ),
-          bottom: TabBar(
-            tabs: [
-              Tab(
-                icon: Icon(Icons.list),
-                text: rol,
-              ),
-            ],
-          ),
+          backgroundColor: Color(0xFFFF0005),
+          bottom: tabBar,
         ),
         body: TabBarView(
-          children: <Widget>[ListadoProdVendedorView()],
+          children: <Widget>[
+            ListadoProdVendedorView(),
+            ListadoProdVendedorView(),
+            SetProductoView(),
+            ListadoProdVendedorView(),
+            ListadoProdVendedorView()
+          ],
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.logout),
