@@ -6,6 +6,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import 'listado_activos.dart';
+import 'listado_inactivos.dart';
 import 'listado_prod_vendedor.dart';
 
 String? email = "";
@@ -61,17 +62,13 @@ class _TabsPageState extends State<TabsPage> {
     final tabBar;
     int tabLength = 0;
     if (rol == 'vendedor') {
-      tabLength = 5;
+      tabLength = 4;
 
       tabBar = TabBar(
         tabs: [
           Tab(
             icon: Icon(Icons.home),
             text: 'Home',
-          ),
-          Tab(
-            icon: Icon(Icons.list),
-            text: 'Productos',
           ),
           Tab(
             icon: Icon(Icons.add),
@@ -111,10 +108,9 @@ class _TabsPageState extends State<TabsPage> {
         body: TabBarView(
           children: <Widget>[
             ListadoProdVendedorView(),
-            ListadoProdVendedorView(),
             SetProductoView(),
             ListadoProdVActivosView(),
-            ListadoProdVendedorView()
+            ListadoProdInactivosView()
           ],
         ),
         floatingActionButton: FloatingActionButton(
