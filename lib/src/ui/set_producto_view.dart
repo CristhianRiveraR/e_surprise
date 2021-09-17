@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -18,7 +19,8 @@ class SetProductoView extends StatefulWidget {
   _SetProductoViewState createState() => _SetProductoViewState();
 }
 
-final alumnoRef = FirebaseDatabase.instance.reference().child('productos');
+final productoRef = FirebaseDatabase.instance.reference().child('productos');
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class _SetProductoViewState extends State<SetProductoView> {
   TextEditingController? nombreController;
@@ -66,7 +68,7 @@ class _SetProductoViewState extends State<SetProductoView> {
               child: Container(
                 height: 180.0,
                 child: Image.asset(
-                  "assets/regalo.png",
+                  "assets/camera.png",
                   fit: BoxFit.contain,
                 ),
               ),
@@ -79,7 +81,7 @@ class _SetProductoViewState extends State<SetProductoView> {
     GoogleMapController controller = await mapController.future;
     if (controller != null) {
       controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target: LatLng(posicion!.latitude, posicion!.longitude), zoom: 8.0)));
+          target: LatLng(posicion!.latitude, posicion!.longitude), zoom: 1.0)));
     }
   }
 
@@ -189,15 +191,11 @@ class _SetProductoViewState extends State<SetProductoView> {
               height: 26.0,
             ),
             ElevatedButton(
-              onPressed: () {
-                alumnoRef.push().set({
-                  'nombre': nombreController!.text,
-                }).then((value) {
-                  nombreController!.text = '';
-                });
-                //debugPrint('${nombreController!.text}');
-              },
-              child: Text('Agregar Producto'),
+              onPressed: () => setServicio(),
+
+              //debugPrint('${nombreController!.text}');
+
+              child: Text('Agregar Servicio'),
               style: ElevatedButton.styleFrom(
                 primary: Colors.red[900],
               ),
@@ -206,6 +204,53 @@ class _SetProductoViewState extends State<SetProductoView> {
         ),
       ),
     );
+  }
+
+  setServicio() async {
+    if (!validaciones()) {
+      showError('Verifique que haya ingresado todos los datos');
+    } else {
+      TaskSnapshot snapshot = await subirArchivo(pickFile!);
+      String imageUrl = await snapshot.ref.getDownloadURL();
+      _location.getLocation().then((value) {
+        _locationData = value;
+        latitud = _locationData.latitude.toString();
+        longitud = _locationData.longitude.toString();
+        productoRef.push().set({
+          'nombre': nombreController!.text,
+          'fechaAlta': fechaAltaController!.text,
+          'descripcion': descripcionController!.text,
+          'numContacto': numContactoController!.text,
+          'latitud': latitud,
+          'longitud': longitud,
+          'imagePath': imageUrl,
+          'costo': costoController!.text,
+          'vendedor': _auth.currentUser!.email,
+          'status': 'activo'
+        }).then((value) {
+          nombreController!.text = '';
+          fechaAltaController!.text = '';
+          costoController!.text = '';
+          descripcionController!.text = '';
+          numContactoController!.text = '';
+          latitud = '';
+          longitud = '';
+          imageF = null;
+          image(imageF);
+        });
+      });
+    }
+  }
+
+  bool validaciones() {
+    if (nombreController!.text.isEmpty ||
+        descripcionController!.text.isEmpty ||
+        numContactoController!.text.isEmpty ||
+        fechaAltaController!.text.isEmpty ||
+        costoController!.text.isEmpty) {
+      return false;
+    }
+    return true;
   }
 
   void modal() {
@@ -260,5 +305,23 @@ class _SetProductoViewState extends State<SetProductoView> {
 
     UploadTask uploadTask = ref.putFile(File(file.path), metadata);
     return uploadTask;
+  }
+
+  showError(String errormessage) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Advertencia'),
+            content: Text(errormessage),
+            actions: <Widget>[
+              FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'))
+            ],
+          );
+        });
   }
 }
