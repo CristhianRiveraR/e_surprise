@@ -92,7 +92,7 @@ class _LoginViewState extends State<LoginView> {
     final loginButton = Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
-      color: Color(0xFFFF0005),
+      color: Colors.red[900],
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
@@ -107,7 +107,7 @@ class _LoginViewState extends State<LoginView> {
     final registroButton = Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
-      color: Color(0xffFF0005),
+      color: Colors.red[900],
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),

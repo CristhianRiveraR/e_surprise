@@ -103,7 +103,7 @@ class _TabsPageState extends State<TabsPage> {
           title: Center(
             child: Text('Bienvenid@: ${user!.email}'),
           ),
-          backgroundColor: Color(0xFFFF0005),
+          backgroundColor: Colors.red[900],
           bottom: tabBar,
         ),
         body: TabBarView(
