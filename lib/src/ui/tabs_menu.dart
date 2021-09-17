@@ -23,6 +23,14 @@ class _TabsPageState extends State<TabsPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   //final db = FirebaseDatabase.instance;
   //final _users_Ref = fb.reference().child("usuarios/${userID}");
+  checkAuth() async {
+    _auth.authStateChanges().listen((user) {
+      if (user == null) {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => LoginView()));
+      }
+    });
+  }
 
   User? user;
 
@@ -53,7 +61,7 @@ class _TabsPageState extends State<TabsPage> {
   @override
   void initState() {
     super.initState();
-    //this.checkAuth();
+    this.checkAuth();
     getUserData();
   }
 
@@ -114,10 +122,14 @@ class _TabsPageState extends State<TabsPage> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.logout),
+          child: Icon(
+            Icons.logout,
+            color: Colors.white,
+          ),
           onPressed: () {
             _auth.signOut();
           },
+          backgroundColor: Colors.red[900],
         ),
       ),
     );
