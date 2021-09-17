@@ -1,19 +1,27 @@
 import 'package:e_surprise/src/model/producto.dart';
+import 'package:e_surprise/src/ui/update_servicio.dart';
+import 'package:e_surprise/src/ui/ver_servicio.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
 
-class ListadoProdVendedorView extends StatefulWidget {
-  const ListadoProdVendedorView({Key? key}) : super(key: key);
+class ListadoProdVActivosView extends StatefulWidget {
+  const ListadoProdVActivosView({Key? key}) : super(key: key);
 
   @override
-  _ListadoProdVendedorViewState createState() =>
-      _ListadoProdVendedorViewState();
+  _ListadoProdActivosViewState createState() => _ListadoProdActivosViewState();
 }
 
-final productosRef = FirebaseDatabase.instance.reference().child('productos');
+final productosRef = FirebaseDatabase.instance
+    .reference()
+    .child('productos')
+    .orderByChild('status')
+    .equalTo('activo');
 
-class _ListadoProdVendedorViewState extends State<ListadoProdVendedorView> {
+final productosRefInicial =
+    FirebaseDatabase.instance.reference().child('productos');
+
+class _ListadoProdActivosViewState extends State<ListadoProdVActivosView> {
   List<Producto>? items;
   StreamSubscription<Event>? addProductos;
   StreamSubscription<Event>? changeProductos;
@@ -82,16 +90,23 @@ class _ListadoProdVendedorViewState extends State<ListadoProdVendedorView> {
                   ),
                   IconButton(
                     onPressed: () =>
-                        _borrarProducto(context, items![position], position),
+                        bajaProducto(context, items![position], position),
                     icon: Icon(
-                      Icons.delete,
+                      Icons.auto_delete_outlined,
+                      color: Colors.red[900],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => updateProducto(context, items![position]),
+                    icon: Icon(
+                      Icons.edit,
                       color: Colors.red[900],
                     ),
                   ),
                   IconButton(
                     onPressed: () => verProducto(context, items![position]),
                     icon: Icon(
-                      Icons.remove_red_eye_outlined,
+                      Icons.remove_red_eye,
                       color: Colors.blue,
                     ),
                   ),
@@ -110,14 +125,6 @@ class _ListadoProdVendedorViewState extends State<ListadoProdVendedorView> {
     });
   }
 
-  void _borrarProducto(
-      BuildContext context, Producto alumno, int position) async {
-    await productosRef.child(alumno.id!).remove().then((_) {
-      setState(() {
-        items!.removeAt(position);
-      });
-    });
-  }
 /*
   void infoAlumno(BuildContext context, Alumno alumno) async {
     await Navigator.push(
@@ -127,8 +134,44 @@ class _ListadoProdVendedorViewState extends State<ListadoProdVendedorView> {
   }
 */
 
-  void verProducto(BuildContext context, Producto alumno) async {
-    //await Navigator.push(
-    //    context, MaterialPageRoute(builder: (context) => InfoAlumno(alumno)));
+  void verProducto(BuildContext context, Producto producto) async {
+    await Navigator.push(context,
+        MaterialPageRoute(builder: (context) => InfServicio(producto)));
+  }
+
+  void updateProducto(BuildContext context, Producto producto) async {
+    await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => UpdateServicio(producto: producto)));
+  }
+
+  void _borrarProducto(
+      BuildContext context, Producto alumno, int position) async {
+    await productosRefInicial.child(alumno.id!).remove().then((_) {
+      setState(() {
+        items!.removeAt(position);
+      });
+    });
+  }
+
+  void bajaProducto(
+      BuildContext context, Producto producto, int position) async {
+    productosRefInicial.child(producto.id!).set({
+      'status': 'inactivo',
+      'nombre': producto.nombre!,
+      'fechaAlta': producto.fechaAlta!,
+      'descripcion': producto.descripcion!,
+      'numContacto': producto.numContacto!,
+      'latitud': producto.latitud!,
+      'longitud': producto.longitud!,
+      'imagePath': producto.imagePath!,
+      'costo': producto.costo!,
+      'vendedor': producto.vendedor!
+    }).then((_) {
+      setState(() {
+        items!.removeAt(position);
+      });
+    });
   }
 }

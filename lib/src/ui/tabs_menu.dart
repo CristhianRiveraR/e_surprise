@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
+import 'listado_activos.dart';
 import 'listado_prod_vendedor.dart';
 
 String? email = "";
@@ -99,6 +100,7 @@ class _TabsPageState extends State<TabsPage> {
     return DefaultTabController(
       length: tabLength,
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Center(
             child: Text('Bienvenid@: ${user!.email}'),
@@ -111,7 +113,7 @@ class _TabsPageState extends State<TabsPage> {
             ListadoProdVendedorView(),
             ListadoProdVendedorView(),
             SetProductoView(),
-            ListadoProdVendedorView(),
+            ListadoProdVActivosView(),
             ListadoProdVendedorView()
           ],
         ),

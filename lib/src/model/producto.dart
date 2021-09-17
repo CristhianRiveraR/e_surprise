@@ -40,6 +40,7 @@ class Producto {
   }
 
   Producto.fromSnapshot(DataSnapshot snapShot) {
+    id = snapShot.key;
     nombre = snapShot.value['nombre'];
     fechaAlta = snapShot.value['fechaAlta'];
     imagePath = snapShot.value['imagePath'];
