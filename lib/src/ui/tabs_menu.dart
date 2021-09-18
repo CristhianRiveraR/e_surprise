@@ -6,7 +6,9 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import 'listado_activos.dart';
+import 'listado_cliente.dart';
 import 'listado_inactivos.dart';
+import 'listado_pedidos.dart';
 import 'listado_prod_vendedor.dart';
 
 String? email = "";
@@ -21,6 +23,7 @@ class TabsPage extends StatefulWidget {
 
 class _TabsPageState extends State<TabsPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
   //final db = FirebaseDatabase.instance;
   //final _users_Ref = fb.reference().child("usuarios/${userID}");
   checkAuth() async {
@@ -47,7 +50,6 @@ class _TabsPageState extends State<TabsPage> {
         .child("usuarios")
         .orderByChild('email')
         .equalTo(email)
-        .limitToFirst(1)
         .once()
         .then((DataSnapshot snapshot) {
       Map<dynamic, dynamic> values = snapshot.value;
@@ -68,16 +70,13 @@ class _TabsPageState extends State<TabsPage> {
   @override
   Widget build(BuildContext context) {
     final tabBar;
+    final tabBarView;
     int tabLength = 0;
     if (rol == 'vendedor') {
-      tabLength = 4;
+      tabLength = 3;
 
       tabBar = TabBar(
         tabs: [
-          Tab(
-            icon: Icon(Icons.home),
-            text: 'Home',
-          ),
           Tab(
             icon: Icon(Icons.add),
             text: 'Agregar',
@@ -92,16 +91,34 @@ class _TabsPageState extends State<TabsPage> {
           ),
         ],
       );
+
+      tabBarView = TabBarView(
+        children: <Widget>[
+          SetProductoView(),
+          ListadoProdVActivosView(),
+          ListadoProdInactivosView()
+        ],
+      );
     } else {
+      tabLength = 2;
+
       tabBar = TabBar(
         tabs: [
           Tab(
             icon: Icon(Icons.list),
-            text: 'rol',
+            text: 'Servicios',
+          ),
+          Tab(
+            icon: Icon(Icons.check),
+            text: 'Solicitados',
           ),
         ],
       );
+      tabBarView = TabBarView(
+        children: <Widget>[ListadoClienteView(), ListadoPedidosView()],
+      );
     }
+
     return DefaultTabController(
       length: tabLength,
       child: Scaffold(
@@ -113,14 +130,7 @@ class _TabsPageState extends State<TabsPage> {
           backgroundColor: Colors.red[900],
           bottom: tabBar,
         ),
-        body: TabBarView(
-          children: <Widget>[
-            ListadoProdVendedorView(),
-            SetProductoView(),
-            ListadoProdVActivosView(),
-            ListadoProdInactivosView()
-          ],
-        ),
+        body: tabBarView,
         floatingActionButton: FloatingActionButton(
           child: Icon(
             Icons.logout,

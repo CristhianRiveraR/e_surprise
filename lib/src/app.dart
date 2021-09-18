@@ -1,3 +1,4 @@
+import 'package:e_surprise/src/ui/opciones.dart';
 import 'package:flutter/material.dart';
 
 //import 'package:alumnos_app/src/ui/tabs_alumnos.dart';
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Gestión de Servicios',
       //home: TabsPage(),
-      home: LoginView(),
+      home: OpcionesView(),
       theme: ThemeData(
         primaryColor: Colors.blue[800],
         accentColor: Colors.green[400],

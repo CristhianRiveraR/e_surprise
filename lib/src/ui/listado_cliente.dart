@@ -1,31 +1,35 @@
 import 'package:e_surprise/src/model/producto.dart';
 import 'package:e_surprise/src/ui/update_servicio.dart';
 import 'package:e_surprise/src/ui/ver_servicio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
 
-class ListadoProdVActivosView extends StatefulWidget {
-  const ListadoProdVActivosView({Key? key}) : super(key: key);
+class ListadoClienteView extends StatefulWidget {
+  const ListadoClienteView({Key? key}) : super(key: key);
 
   @override
-  _ListadoProdActivosViewState createState() => _ListadoProdActivosViewState();
+  _ListadoClienteViewState createState() => _ListadoClienteViewState();
 }
 
-final productosRef = FirebaseDatabase.instance
+var productosRef = FirebaseDatabase.instance
     .reference()
     .child('productos')
     .orderByChild('status')
     .equalTo('activo');
 
+final solicitados = FirebaseDatabase.instance.reference().child('solicitados');
+final FirebaseAuth _auth = FirebaseAuth.instance;
+
 final productosRefInicial =
     FirebaseDatabase.instance.reference().child('productos');
 
-class _ListadoProdActivosViewState extends State<ListadoProdVActivosView> {
+class _ListadoClienteViewState extends State<ListadoClienteView> {
   List<Producto>? items;
   StreamSubscription<Event>? addProductos;
   StreamSubscription<Event>? changeProductos;
-
+  TextEditingController? buscarController;
   @override
   void initState() {
     super.initState();
@@ -33,6 +37,7 @@ class _ListadoProdActivosViewState extends State<ListadoProdVActivosView> {
     items = [];
 
     addProductos = productosRef.onChildAdded.listen(_addProducto);
+    buscarController = new TextEditingController();
     //changeProductos = productosRef.onChildChanged.listen(_updateAlumno);
   }
 
@@ -47,6 +52,24 @@ class _ListadoProdActivosViewState extends State<ListadoProdVActivosView> {
     return Scaffold(
       //title: 'Listado de Alumnos',
       resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: TextField(
+          keyboardType: TextInputType.text,
+          controller: buscarController,
+          decoration: InputDecoration(
+            //contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+            hintText: 'Busqueda',
+          ),
+        ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                buscar();
+              },
+              icon: Icon(Icons.search, color: Colors.red[900]))
+        ],
+      ),
       body: Center(
         child: ListView.builder(
           itemCount: items!.length,
@@ -90,16 +113,9 @@ class _ListadoProdActivosViewState extends State<ListadoProdVActivosView> {
                   ),
                   IconButton(
                     onPressed: () =>
-                        modalEliminar(context, items![position], position),
+                        solicitarProducto(context, items![position], position),
                     icon: Icon(
-                      Icons.auto_delete_outlined,
-                      color: Colors.red[900],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => updateProducto(context, items![position]),
-                    icon: Icon(
-                      Icons.edit,
+                      Icons.shopping_cart_outlined,
                       color: Colors.red[900],
                     ),
                   ),
@@ -139,6 +155,19 @@ class _ListadoProdActivosViewState extends State<ListadoProdVActivosView> {
         MaterialPageRoute(builder: (context) => InfServicio(producto)));
   }
 
+  void buscar() async {
+    productosRef = FirebaseDatabase.instance
+        .reference()
+        .child('productos')
+        .orderByChild('nombre')
+        .equalTo(buscarController!.text);
+
+    setState(() {
+      items = [];
+      addProductos = productosRef.onChildAdded.listen(_addProducto);
+    });
+  }
+
   void updateProducto(BuildContext context, Producto producto) async {
     await Navigator.push(
         context,
@@ -155,93 +184,22 @@ class _ListadoProdActivosViewState extends State<ListadoProdVActivosView> {
     });
   }
 
-  void bajaProducto(
+  void solicitarProducto(
       BuildContext context, Producto producto, int position) async {
-    productosRefInicial.child(producto.id!).set({
-      'status': 'inactivo',
-      'nombre': producto.nombre!,
-      'fechaAlta': producto.fechaAlta!,
-      'descripcion': producto.descripcion!,
-      'numContacto': producto.numContacto!,
-      'latitud': producto.latitud!,
-      'longitud': producto.longitud!,
-      'imagePath': producto.imagePath!,
-      'costo': producto.costo!,
-      'vendedor': producto.vendedor!
-    }).then((_) {
-      setState(() {
-        items!.removeAt(position);
-      });
-    });
-  }
+    solicitados.push().set({
+      //'producto': producto.id,
+      'cliente': _auth.currentUser!.email,
+      //'vendedor': producto.vendedor
 
-  void modalEliminar(BuildContext context, Producto producto, int position) {
-    String nombre = producto.nombre.toString();
-    Widget bajaLogica = IconButton(
-      icon: Icon(
-        Icons.auto_delete_outlined,
-        size: 30,
-      ),
-      onPressed: () => bajaProducto(context, items![position], position),
-    );
-    Widget bajaDefinitiva = IconButton(
-      icon: Icon(
-        Icons.delete,
-        size: 30,
-      ),
-      onPressed: () => _borrarProducto(context, items![position], position),
-    );
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              'Seleccione El tipo de baja',
-              style: TextStyle(fontSize: 15),
-            ),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  Card(
-                    elevation: 10,
-                    child: Container(
-                      height: 180.0,
-                      child: Image.network(
-                        "${producto.imagePath}",
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    'Nombre: ${producto.nombre!}',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
-                  ),
-                  Divider(),
-                  Text(
-                    'Descripción: ${producto.descripcion!}',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
-                  ),
-                  Divider(),
-                  Text(
-                    'Fecha alta: ${producto.fechaAlta!}',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
-                  ),
-                  Divider(),
-                  Text(
-                    'Costo: ${producto.costo!}',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
-                  ),
-                  Divider(),
-                ],
-              ),
-            ),
-            actions: [bajaLogica, bajaDefinitiva],
-          );
-        });
+      'nombre': producto.nombre,
+      'fechaAlta': producto.fechaAlta,
+      'descripcion': producto.descripcion,
+      'numContacto': producto.numContacto,
+      'latitud': producto.latitud,
+      'longitud': producto.longitud,
+      'imagePath': producto.imagePath,
+      'costo': producto.costo,
+      'vendedor': producto.vendedor
+    }).then((value) {});
   }
 }
