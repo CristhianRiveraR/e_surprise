@@ -108,7 +108,7 @@ class _SetProductoViewState extends State<SetProductoView> {
             ),
             Text(
               "Nuevo Servicio",
-              style: TextStyle(fontSize: 30, color: Color(0xFF363f93)),
+              style: TextStyle(fontSize: 30, color: Colors.grey[800]),
             ),
             SizedBox(
               height: 30,

@@ -67,13 +67,13 @@ class _ListadoPedidosViewState extends State<ListadoPedidosView> {
                       title: Text(
                         '${items?[position].nombre}',
                         style:
-                            TextStyle(color: Colors.blue[700], fontSize: 25.0),
+                            TextStyle(color: Colors.grey[800], fontSize: 25.0),
                       ),
 
                       subtitle: Text(
                         '${items?[position].descripcion}',
                         style:
-                            TextStyle(color: Colors.blue[400], fontSize: 18.0),
+                            TextStyle(color: Colors.grey[600], fontSize: 18.0),
                       ),
                       leading: Column(
                         children: <Widget>[

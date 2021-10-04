@@ -12,6 +12,7 @@ class Producto {
   String? longitud;
   String? status;
   String? vendedor;
+  String? cliente;
 
   Producto(
       this.id,
@@ -24,7 +25,8 @@ class Producto {
       this.numContacto,
       this.latitud,
       this.vendedor,
-      this.status);
+      this.status,
+      this.cliente);
 
   Producto.map(dynamic obj) {
     this.nombre = obj['nombre'];
@@ -37,6 +39,7 @@ class Producto {
     this.longitud = obj['longitud'];
     this.vendedor = obj['vendedor'];
     this.status = obj['status'];
+    this.cliente = obj['cliente'];
   }
 
   Producto.fromSnapshot(DataSnapshot snapShot) {
@@ -51,5 +54,6 @@ class Producto {
     longitud = snapShot.value['longitud'];
     vendedor = snapShot.value['vendedor'];
     status = snapShot.value['status'];
+    cliente = snapShot.value['cliente'];
   }
 }

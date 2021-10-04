@@ -44,7 +44,9 @@ class _InfServicioState extends State<InfServicio> {
     GoogleMapController controller = await mapController.future;
     if (controller != null) {
       controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target: LatLng(posicion!.latitude, posicion!.longitude), zoom: 2.0)));
+          target: LatLng(double.parse(widget.producto.latitud!),
+              double.parse(widget.producto.longitud!)),
+          zoom: 2.0)));
     }
   }
 
@@ -92,7 +94,7 @@ class _InfServicioState extends State<InfServicio> {
                 Padding(padding: EdgeInsets.only(top: 8.0)),
                 Divider(),
                 new Text(
-                  "Fecha Alta: ${widget.producto.fechaAlta}",
+                  "Pracio: ${widget.producto.costo}",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
                 ),
                 Padding(padding: EdgeInsets.only(top: 8.0)),

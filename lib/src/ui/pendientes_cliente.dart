@@ -6,24 +6,23 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
 
-class ListadoProdInactivosView extends StatefulWidget {
-  const ListadoProdInactivosView({Key? key}) : super(key: key);
+class PendientesClienteView extends StatefulWidget {
+  const PendientesClienteView({Key? key}) : super(key: key);
 
   @override
-  _ListadoProdInactivosViewState createState() =>
-      _ListadoProdInactivosViewState();
+  _PendientesClienteViewState createState() => _PendientesClienteViewState();
 }
 
 final productosRef = FirebaseDatabase.instance
     .reference()
-    .child('productos')
+    .child('solicitados')
     .orderByChild('status')
-    .equalTo('inactivo');
+    .equalTo('pendiente');
 
 final productosRefInicial =
-    FirebaseDatabase.instance.reference().child('productos');
+    FirebaseDatabase.instance.reference().child('solicitados');
 
-class _ListadoProdInactivosViewState extends State<ListadoProdInactivosView> {
+class _PendientesClienteViewState extends State<PendientesClienteView> {
   List<Producto>? items;
   StreamSubscription<Event>? addProductos;
   StreamSubscription<Event>? changeProductos;
@@ -91,22 +90,6 @@ class _ListadoProdInactivosViewState extends State<ListadoProdInactivosView> {
                       //onTap: () => updateAlu(context, items![position]),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () =>
-                        activarProducto(context, items![position], position),
-                    icon: Icon(
-                      Icons.upload,
-                      color: Colors.green[900],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () =>
-                        _borrarProducto(context, items![position], position),
-                    icon: Icon(
-                      Icons.delete,
-                      color: Colors.blue,
-                    ),
-                  ),
                 ],
               )
             ]);
@@ -119,7 +102,7 @@ class _ListadoProdInactivosViewState extends State<ListadoProdInactivosView> {
   void _addProducto(Event evento) {
     setState(() {
       Producto p = new Producto.fromSnapshot(evento.snapshot);
-      if (p.vendedor == _auth.currentUser!.email) {
+      if (p.cliente == _auth.currentUser!.email) {
         items!.add(p);
       }
     });
@@ -147,18 +130,18 @@ class _ListadoProdInactivosViewState extends State<ListadoProdInactivosView> {
   }
 
   void _borrarProducto(
-      BuildContext context, Producto producto, int position) async {
-    await productosRefInicial.child(producto.id!).remove().then((_) {
+      BuildContext context, Producto alumno, int position) async {
+    await productosRefInicial.child(alumno.id!).remove().then((_) {
       setState(() {
         items!.removeAt(position);
       });
     });
   }
 
-  void activarProducto(
+  void confirmaProducto(
       BuildContext context, Producto producto, int position) async {
     productosRefInicial.child(producto.id!).set({
-      'status': 'activo',
+      'status': 'aprobado',
       'nombre': producto.nombre!,
       'fechaAlta': producto.fechaAlta!,
       'descripcion': producto.descripcion!,
@@ -173,5 +156,60 @@ class _ListadoProdInactivosViewState extends State<ListadoProdInactivosView> {
         items!.removeAt(position);
       });
     });
+  }
+
+  void modalEliminar(BuildContext context, Producto producto, int position) {
+    String nombre = producto.nombre.toString();
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              'Seleccione El tipo de baja',
+              style: TextStyle(fontSize: 15),
+            ),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Card(
+                    elevation: 10,
+                    child: Container(
+                      height: 180.0,
+                      child: Image.network(
+                        "${producto.imagePath}",
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    'Nombre: ${producto.nombre!}',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                  ),
+                  Divider(),
+                  Text(
+                    'Descripción: ${producto.descripcion!}',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                  ),
+                  Divider(),
+                  Text(
+                    'Fecha alta: ${producto.fechaAlta!}',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                  ),
+                  Divider(),
+                  Text(
+                    'Costo: ${producto.costo!}',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                  ),
+                  Divider(),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }

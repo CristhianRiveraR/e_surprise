@@ -1,8 +1,22 @@
+import 'dart:async';
+
+import 'package:e_surprise/src/model/usuario.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:e_surprise/src/ui/tabs_menu.dart';
 import 'package:e_surprise/src/ui/registro.dart';
+
+String rol = "";
+Usuario? usr;
+
+var usrRef = FirebaseDatabase.instance
+    .reference()
+    .child('usuarios')
+    .orderByChild('email');
+
+final usuarioRef = FirebaseDatabase.instance.reference().child('usuarios');
 
 class LoginView extends StatefulWidget {
   LoginView({Key? key}) : super(key: key);
@@ -14,6 +28,8 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  StreamSubscription<Event>? addUsuarios;
 
   TextEditingController? emailController;
   TextEditingController? passWordController;
@@ -158,5 +174,23 @@ class _LoginViewState extends State<LoginView> {
         ),
       ),
     );
+  }
+
+  Future<void> buscar() async {
+    usrRef = FirebaseDatabase.instance
+        .reference()
+        .child('usuarios')
+        .orderByChild('email')
+        .equalTo(emailController!.text);
+
+    addUsuarios = usrRef.onChildAdded.listen(_addUsuario);
+  }
+
+  void _addUsuario(Event evento) {
+    Usuario usrTemp = new Usuario.fromSnapshot(evento.snapshot);
+
+    if (usrTemp.email == emailController!.text) {
+      usr = usrTemp;
+    }
   }
 }

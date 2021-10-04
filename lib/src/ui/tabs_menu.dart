@@ -1,4 +1,11 @@
+import 'dart:async';
+
+import 'package:e_surprise/src/model/usuario.dart';
+import 'package:e_surprise/src/ui/aprobados_cliente.dart';
+import 'package:e_surprise/src/ui/aprovados_vendedor.dart';
 import 'package:e_surprise/src/ui/login.dart';
+import 'package:e_surprise/src/ui/pendientes_cliente.dart';
+import 'package:e_surprise/src/ui/pendientes_vendedor.dart';
 import 'package:e_surprise/src/ui/set_producto_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,10 +19,13 @@ import 'listado_pedidos.dart';
 import 'listado_prod_vendedor.dart';
 
 String? email = "";
-String? rol = "vendedor";
+String? rol = "";
+
+final usrRef = FirebaseDatabase.instance.reference().child('usuarios');
 
 class TabsPage extends StatefulWidget {
-  TabsPage({Key? key, this.user}) : super(key: key);
+  final Usuario? usuario;
+  TabsPage({Key? key, this.usuario}) : super(key: key);
   User? user;
   @override
   _TabsPageState createState() => _TabsPageState();
@@ -23,7 +33,8 @@ class TabsPage extends StatefulWidget {
 
 class _TabsPageState extends State<TabsPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
+  StreamSubscription<Event>? addUsuarios;
+  Usuario? usr;
   //final db = FirebaseDatabase.instance;
   //final _users_Ref = fb.reference().child("usuarios/${userID}");
   checkAuth() async {
@@ -36,16 +47,11 @@ class _TabsPageState extends State<TabsPage> {
   }
 
   User? user;
-
+/*
   Future<void> getUserData() async {
-    User? userData = await FirebaseAuth.instance.currentUser;
+    User? userData = FirebaseAuth.instance.currentUser;
 
-    setState(() {
-      user = userData;
-      email = userData!.email;
-    });
-
-    final query = FirebaseDatabase.instance
+    FirebaseDatabase.instance
         .reference()
         .child("usuarios")
         .orderByChild('email')
@@ -58,22 +64,31 @@ class _TabsPageState extends State<TabsPage> {
         rol = values["rol"];
       });
     });
-  }
 
+    setState(() {
+      user = userData;
+      email = userData!.email;
+    });
+  }
+*/
   @override
   void initState() {
     super.initState();
     this.checkAuth();
-    getUserData();
+    usr = new Usuario("", "", "");
+    //getUserData();
+    addUsuarios = usrRef.onChildAdded.listen(_addUsuario);
   }
 
   @override
   Widget build(BuildContext context) {
     final tabBar;
     final tabBarView;
+
     int tabLength = 0;
-    if (rol == 'vendedor') {
-      tabLength = 3;
+
+    if (usr!.rol == 'vendedor') {
+      tabLength = 5;
 
       tabBar = TabBar(
         tabs: [
@@ -89,6 +104,14 @@ class _TabsPageState extends State<TabsPage> {
             icon: Icon(Icons.cancel_outlined),
             text: 'Inactivos',
           ),
+          Tab(
+            icon: Icon(Icons.timelapse),
+            text: 'Pendientes',
+          ),
+          Tab(
+            icon: Icon(Icons.store),
+            text: 'Aprobados',
+          ),
         ],
       );
 
@@ -96,11 +119,13 @@ class _TabsPageState extends State<TabsPage> {
         children: <Widget>[
           SetProductoView(),
           ListadoProdVActivosView(),
-          ListadoProdInactivosView()
+          ListadoProdInactivosView(),
+          PendientesVendedorView(),
+          AprobadosVendedorView()
         ],
       );
     } else {
-      tabLength = 2;
+      tabLength = 4;
 
       tabBar = TabBar(
         tabs: [
@@ -109,13 +134,26 @@ class _TabsPageState extends State<TabsPage> {
             text: 'Servicios',
           ),
           Tab(
-            icon: Icon(Icons.check),
-            text: 'Solicitados',
+            icon: Icon(Icons.history),
+            text: 'Historial',
+          ),
+          Tab(
+            icon: Icon(Icons.timelapse),
+            text: 'Pendientes',
+          ),
+          Tab(
+            icon: Icon(Icons.shopping_cart_sharp),
+            text: 'Aprobados',
           ),
         ],
       );
       tabBarView = TabBarView(
-        children: <Widget>[ListadoClienteView(), ListadoPedidosView()],
+        children: <Widget>[
+          ListadoClienteView(),
+          ListadoPedidosView(),
+          PendientesClienteView(),
+          AprobadosClienteView()
+        ],
       );
     }
 
@@ -125,7 +163,7 @@ class _TabsPageState extends State<TabsPage> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Center(
-            child: Text('Bienvenid@: ${user!.email}'),
+            child: Text('Bienvenid@: ${usr!.email}'),
           ),
           backgroundColor: Colors.red[900],
           bottom: tabBar,
@@ -143,5 +181,27 @@ class _TabsPageState extends State<TabsPage> {
         ),
       ),
     );
+  }
+/*
+  buscar() async {
+    usrRef = FirebaseDatabase.instance
+        .reference()
+        .child('usuarios')
+        .orderByChild('email')
+        .equalTo(_auth.currentUser!.email);
+
+    addUsuarios = usrRef.onChildAdded.listen(_addUsuario);
+  }
+*/
+
+  void _addUsuario(Event evento) {
+    setState(() {
+      Usuario usrTemp = new Usuario.fromSnapshot(evento.snapshot);
+
+      if (usrTemp.email == _auth.currentUser!.email) {
+        //usr = usrTemp;
+        usr = new Usuario(usrTemp.id, usrTemp.email, usrTemp.rol);
+      }
+    });
   }
 }

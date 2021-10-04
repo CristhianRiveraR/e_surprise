@@ -1,6 +1,7 @@
 import 'package:e_surprise/src/model/producto.dart';
 import 'package:e_surprise/src/ui/update_servicio.dart';
 import 'package:e_surprise/src/ui/ver_servicio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
@@ -25,6 +26,7 @@ class _ListadoProdActivosViewState extends State<ListadoProdVActivosView> {
   List<Producto>? items;
   StreamSubscription<Event>? addProductos;
   StreamSubscription<Event>? changeProductos;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -63,13 +65,13 @@ class _ListadoProdActivosViewState extends State<ListadoProdVActivosView> {
                       title: Text(
                         '${items?[position].nombre}',
                         style:
-                            TextStyle(color: Colors.blue[700], fontSize: 25.0),
+                            TextStyle(color: Colors.grey[800], fontSize: 25.0),
                       ),
 
                       subtitle: Text(
                         '${items?[position].descripcion}',
                         style:
-                            TextStyle(color: Colors.blue[400], fontSize: 18.0),
+                            TextStyle(color: Colors.grey[600], fontSize: 18.0),
                       ),
                       leading: Column(
                         children: <Widget>[
@@ -100,7 +102,7 @@ class _ListadoProdActivosViewState extends State<ListadoProdVActivosView> {
                     onPressed: () => updateProducto(context, items![position]),
                     icon: Icon(
                       Icons.edit,
-                      color: Colors.red[900],
+                      color: Colors.grey[800],
                     ),
                   ),
                   IconButton(
@@ -121,7 +123,10 @@ class _ListadoProdActivosViewState extends State<ListadoProdVActivosView> {
 
   void _addProducto(Event evento) {
     setState(() {
-      items!.add(new Producto.fromSnapshot(evento.snapshot));
+      Producto p = new Producto.fromSnapshot(evento.snapshot);
+      if (p.vendedor == _auth.currentUser!.email) {
+        items!.add(p);
+      }
     });
   }
 

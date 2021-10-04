@@ -86,13 +86,13 @@ class _ListadoClienteViewState extends State<ListadoClienteView> {
                       title: Text(
                         '${items?[position].nombre}',
                         style:
-                            TextStyle(color: Colors.blue[700], fontSize: 25.0),
+                            TextStyle(color: Colors.grey[800], fontSize: 25.0),
                       ),
 
                       subtitle: Text(
                         '${items?[position].descripcion}',
                         style:
-                            TextStyle(color: Colors.blue[400], fontSize: 18.0),
+                            TextStyle(color: Colors.grey[500], fontSize: 18.0),
                       ),
                       leading: Column(
                         children: <Widget>[
@@ -137,7 +137,14 @@ class _ListadoClienteViewState extends State<ListadoClienteView> {
 
   void _addProducto(Event evento) {
     setState(() {
-      items!.add(new Producto.fromSnapshot(evento.snapshot));
+      Producto p = new Producto.fromSnapshot(evento.snapshot);
+      if (buscarController!.text == "") {
+        items!.add(p);
+      } else {
+        if (p.nombre!.contains(buscarController!.text)) {
+          items!.add(p);
+        }
+      }
     });
   }
 
@@ -156,11 +163,9 @@ class _ListadoClienteViewState extends State<ListadoClienteView> {
   }
 
   void buscar() async {
-    productosRef = FirebaseDatabase.instance
-        .reference()
-        .child('productos')
-        .orderByChild('nombre')
-        .equalTo(buscarController!.text);
+    productosRef = FirebaseDatabase.instance.reference().child('productos');
+    //.orderByChild('nombre')
+    //.equalTo(buscarController!.text);
 
     setState(() {
       items = [];
@@ -199,7 +204,8 @@ class _ListadoClienteViewState extends State<ListadoClienteView> {
       'longitud': producto.longitud,
       'imagePath': producto.imagePath,
       'costo': producto.costo,
-      'vendedor': producto.vendedor
+      'vendedor': producto.vendedor,
+      'stuatus': 'pendiente'
     }).then((value) {});
   }
 }

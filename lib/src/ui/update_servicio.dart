@@ -244,7 +244,8 @@ class _UpdateServicioState extends State<UpdateServicio> {
           'vendedor': _auth.currentUser!.email,
           'status': 'activo'
         }).then((_) {
-          MaterialPageRoute(builder: (context) => TabsPage());
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => TabsPage()));
         });
       });
     }

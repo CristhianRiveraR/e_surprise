@@ -14,8 +14,8 @@ class MyApp extends StatelessWidget {
       //home: TabsPage(),
       home: OpcionesView(),
       theme: ThemeData(
-        primaryColor: Colors.blue[800],
-        accentColor: Colors.green[400],
+        primaryColor: Colors.red[900],
+        accentColor: Colors.grey[800],
       ),
     );
   }

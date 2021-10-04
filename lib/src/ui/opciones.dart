@@ -17,11 +17,13 @@ class _OpcionesViewState extends State<OpcionesView> {
   late VideoPlayerController _controller;
 
   login() {
+    _controller.pause();
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => LoginView()));
   }
 
   creditos() {
+    _controller.pause();
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => Creditos()));
   }
@@ -70,7 +72,7 @@ class _OpcionesViewState extends State<OpcionesView> {
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         onPressed: creditos,
-        child: Text("Creditos",
+        child: Text("Créditos",
             textAlign: TextAlign.center,
             style: style.copyWith(
                 color: Colors.white, fontWeight: FontWeight.bold)),
